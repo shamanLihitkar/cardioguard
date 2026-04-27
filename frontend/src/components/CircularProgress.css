@@ -1,0 +1,30 @@
+.circular-progress-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circular-progress-svg {
+  transform: rotate(-90deg);
+}
+
+.circular-progress-text {
+  position: absolute;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.circular-progress-val {
+  fill: var(--text-main);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.circular-progress-label {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  margin-top: 4px;
+}

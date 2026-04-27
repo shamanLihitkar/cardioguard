@@ -1,0 +1,81 @@
+.navbar-container {
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+  margin-bottom: 10px;
+  background-color: var(--card-bg);
+  border-bottom: var(--border-style);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-main);
+  font-weight: bold;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.dropdown-container { position: relative; }
+
+.dropdown-menu {
+  position: absolute; top: 140%; right: 0; background-color: var(--card-bg);
+  border: var(--border-style); border-radius: 8px; min-width: 200px; z-index: 100;
+  opacity: 0; transform: translateY(-5px); pointer-events: none;
+  transition: all 0.2s ease; padding: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+.dropdown-item {
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+  color: var(--text-main); cursor: pointer; transition: all 0.2s;
+  font-family: 'Space Mono', monospace; font-size: 0.9rem; border-radius: 6px;
+}
+
+.dropdown-item:hover { background-color: rgba(0,0,0,0.05); color: var(--primary); }
+[data-theme='dark'] .dropdown-item:hover { background-color: rgba(255,255,255,0.05); }
+.dropdown-divider { margin: 8px 0; height: 1px; width: 100%; background: var(--border-color); }
+
+/* === MOBILE NAVBAR FIX === */
+@media (max-width: 850px) {
+  .navbar-container {
+    flex-direction: row !important;
+    padding: 8px 10px !important; /* Aggressively reduced padding */
+    flex-wrap: nowrap !important;
+    gap: 5px !important;
+  }
+  
+  .navbar-brand { 
+    font-size: 1rem; /* Shrunk logo text */
+    gap: 4px; /* Tighter gap between icon and text */
+    white-space: nowrap; 
+  }
+  
+  .navbar-brand svg {
+    width: 20px; /* Shrunk the SVG icon */
+    height: 20px;
+  }
+  
+  .nav-controls { gap: 5px; }
+  
+  .btn.nav-btn { 
+    padding: 8px !important; 
+    aspect-ratio: 1/1; 
+    display: flex; 
+    justify-content: center; 
+    min-width: 0; /* Prevents overflow */
+  }
+  
+  .dropdown-menu .dropdown-item { padding: 12px; font-size: 0.9rem; }
+}
