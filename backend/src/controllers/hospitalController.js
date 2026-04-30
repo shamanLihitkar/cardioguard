@@ -2,6 +2,8 @@
 
 import {pool} from "../config/db.js";
 import bcrypt from "bcrypt";
+import {getEmailsForUser}from "../services/userService.js"
+import {sendAlertEmail}from "../services/notificationService.js"
 export const loginHospital = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -116,29 +118,75 @@ export const updateHospitalAlertStatus = async (req, res) => {
     const { alertId } = req.params;
     const { status } = req.body;
 
-    // 🛑 Validate input
     if (!["ACCEPTED", "REJECTED"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    // 🔥 Prevent double accept/reject
+    // 🔍 Get alert + hospital + user details
+    const [rows] = await pool.query(
+      `
+      SELECT 
+        ha.id,
+        ha.user_id,
+        ha.patient_name,
+        ha.latitude,
+        ha.longitude,
+        h.name AS hospital_name,
+        h.latitude AS hospital_lat,
+        h.longitude AS hospital_lng
+      FROM hospital_alerts ha
+      JOIN hospitals h ON ha.hospital_id = h.id
+      WHERE ha.id = ?
+      `,
+      [alertId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "Alert not found" });
+    }
+
+    const alert = rows[0];
+
+    // 🔥 Update ONLY if still pending
     const [result] = await pool.query(
-      `UPDATE hospital_alerts
-       SET status = ?
-       WHERE id = ? AND status = 'PENDING'`,
+      `
+      UPDATE hospital_alerts
+      SET status = ?
+      WHERE id = ? AND status = 'PENDING'
+      `,
       [status, alertId]
     );
 
     if (result.affectedRows === 0) {
       return res.status(400).json({
-        message: "Alert already processed or not found",
+        message: "Already processed",
       });
     }
 
-    res.json({ message: "Status updated successfully" });
+    // 📧 SEND EMAIL ONLY IF ACCEPTED
+    if (status === "ACCEPTED") {
+      const emails = await getEmailsForUser(alert.user_id);
+
+      await Promise.all(
+        emails.map((email) =>
+          sendAlertEmail({
+            to: email,
+            type: "HOSPITAL_ACCEPTED",
+            patientName: alert.patient_name,
+            hospitalName: alert.hospital_name,
+            hospitalLat: alert.hospital_lat,
+            hospitalLng: alert.hospital_lng,
+          })
+        )
+      );
+
+      console.log("📧 Acceptance emails sent");
+    }
+
+    res.json({ message: "Status updated" });
 
   } catch (err) {
-    console.error("❌ Error updating alert:", err);
+    console.error("❌ Error updating status:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

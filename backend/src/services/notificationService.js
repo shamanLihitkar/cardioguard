@@ -20,74 +20,115 @@ const transporter = nodemailer.createTransport({
 });
 
 // 📧 Send Alert Email
+
+
 export const sendAlertEmail = async ({
   to,
   userId,
-  name,
   heartRate,
   spo2,
   lat,
   lng,
-  type = "CRITICAL", // default
+  type = "CRITICAL",
+
+  // 🏥 NEW FIELDS
+  patientName,
+  hospitalName,
+  hospitalLat,
+  hospitalLng,
 }) => {
   try {
-   const [users] = await pool.query(
-      "SELECT name, email FROM users WHERE id = ?",
-      [userId]
-    );
+    let subject = "";
+    let html = "";
 
-    if (!users.length) {
-      console.log("❌ User not found");
-      return;
+    // ================================
+    // 🚨 HEALTH ALERT EMAIL
+    // ================================
+    if (type === "CRITICAL" || type === "HIGH_HEART_RATE") {
+      const [users] = await pool.query(
+        "SELECT name FROM users WHERE id = ?",
+        [userId]
+      );
+
+      if (!users.length) {
+        console.log("❌ User not found");
+        return;
+      }
+
+      const user = users[0];
+
+      const locationLink = `https://maps.google.com/?q=${lat},${lng}`;
+
+      subject =
+        type === "CRITICAL"
+          ? "🚨 Emergency Health Alert"
+          : "⚠️ High Heart Rate Warning";
+
+      const message =
+        type === "CRITICAL"
+          ? "Immediate medical attention may be required."
+          : "User's heart rate is consistently high.";
+
+      html = `
+        <h2>${subject}</h2>
+
+        <p><strong>Patient Name:</strong> ${user.name}</p>
+        <p><strong>Heart Rate:</strong> ${heartRate} bpm</p>
+        <p><strong>SpO2:</strong> ${spo2}%</p>
+
+        <p style="color:${
+          type === "CRITICAL" ? "red" : "orange"
+        }; font-weight:bold;">
+          ${message}
+        </p>
+
+        <p>
+          📍 <strong>Location:</strong>
+          <a href="${locationLink}" target="_blank">
+            View on Google Maps
+          </a>
+        </p>
+      `;
     }
 
-    const user = users[0];
-     
+    // ================================
+    // 🏥 HOSPITAL ACCEPTED EMAIL
+    // ================================
+    if (type === "HOSPITAL_ACCEPTED") {
+      const locationLink = `https://maps.google.com/?q=${hospitalLat},${hospitalLng}`;
 
-    const locationLink = `https://maps.google.com/?q=${lat},${lng}`;
+      subject = "🚑 Patient Admitted to Hospital";
 
-    // 🔥 Dynamic subject
-    const subject =
-      type === "CRITICAL"
-        ? "🚨 Emergency Health Alert"
-        : "⚠️ High Heart Rate Warning";
+      html = `
+        <h2>🚑 Patient Accepted by Hospital</h2>
 
-    // 🔥 Dynamic message
-    const message =
-      type === "CRITICAL"
-        ? "Immediate medical attention may be required."
-        : "User's heart rate is consistently high. Please stop activity and rest.";
+        <p><strong>Patient:</strong> ${patientName}</p>
 
-    // 🔥 Email template
-    const html = `
-      <h2>${subject}</h2>
+        <p>
+          🏥 <strong>Hospital:</strong> ${hospitalName}
+        </p>
 
-      <p><strong>User ID:</strong> ${userId}</p>
-      <p><strong>Patient Name:</strong> ${user.name}</p>
-    
-      <p><strong>Heart Rate:</strong> ${heartRate} bpm</p>
-      <p><strong>SpO2:</strong> ${spo2}%</p>
+        <p>
+          📍 <strong>Location:</strong>
+          <a href="${locationLink}" target="_blank">
+            View on Google Maps
+          </a>
+        </p>
 
-      <p style="color:${
-        type === "CRITICAL" ? "red" : "orange"
-      }; font-weight:bold;">
-        ${message}
-      </p>
+        <p style="color:green; font-weight:bold;">
+          The patient is now under medical care.
+        </p>
 
-      <p>
-        📍 <strong>Location:</strong>
-        <a href="${locationLink}" target="_blank">
-          View on Google Maps
-        </a>
-      </p>
+        <hr/>
+        <p style="font-size:12px;color:gray;">
+          CardioGuard System Notification
+        </p>
+      `;
+    }
 
-      <hr/>
-
-      <p style="font-size:12px;color:gray;">
-        This is an automated alert from CardioGuard System.
-      </p>
-    `;
-
+    // ================================
+    // 📧 SEND EMAIL
+    // ================================
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to,
