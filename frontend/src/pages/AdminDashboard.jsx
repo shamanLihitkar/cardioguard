@@ -66,9 +66,9 @@ export default function AdminDashboard() {
             {users.length > 0 ? (
               users.map((u) => (
                 <tr key={u.id}>
-                  <td>{u.name}</td>
-                  <td>{u.email}</td>
-                  <td>
+                  <td data-label="Name">{u.name}</td>
+                  <td data-label="Email">{u.email}</td>
+                  <td data-label="Actions">
                     <button className="delete-btn" onClick={() => deleteUser(u.id)}>Delete</button>
                   </td>
                 </tr>
@@ -99,9 +99,9 @@ export default function AdminDashboard() {
             {hospitals.length > 0 ? (
               hospitals.map((h) => (
                 <tr key={h.id}>
-                  <td>{h.name}</td>
-                  <td>{h.email}</td>
-                  <td>
+                  <td data-label="Hospital Name">{h.name}</td>
+                  <td data-label="Email">{h.email}</td>
+                  <td data-label="Actions">
                     <button className="delete-btn" onClick={() => deleteHospital(h.id)}>Delete</button>
                   </td>
                 </tr>

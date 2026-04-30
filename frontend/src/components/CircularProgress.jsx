@@ -31,7 +31,7 @@ export default function CircularProgress({ value, size = 180, strokeWidth = 16 }
       </svg>
       <div className="circular-progress-text">
         <span className="circular-progress-val" style={{ fontSize: `${mainFontSize}px` }}>
-          {Math.round(safeValue)}
+          {safeValue.toFixed(1)}
         </span>
         <span className="circular-progress-label" style={{ color: currentColor, fontSize: `${subFontSize}px` }}>
           Load

@@ -14,6 +14,7 @@ export default function AdminAuth() {
         "http://localhost:5000/admin/login",
         { email, password }
       );
+      
       localStorage.setItem("adminId", res.data.adminId);
       navigate("/admin/dashboard");
     } catch (err) {

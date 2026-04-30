@@ -140,7 +140,7 @@ export default function HospitalAuth() {
             </div>
           )}
 
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="btn-primary" style={{"color":"white"}} disabled={loading}>
             {loading ? "Verifying..." : isLogin ? "Sign In" : "Complete Registration"}
           </button>
         </form>

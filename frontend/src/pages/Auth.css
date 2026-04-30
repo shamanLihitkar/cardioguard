@@ -1,131 +1,151 @@
-:root {
-  --primary-color: #4f46e5;
-  --primary-hover: #4338ca;
-  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-  --card-bg: #ffffff;
-  --input-border: #d1d5db;
-  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
+/* Auth Page - Matching SimulationPage Theme */
 
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-gradient);
-  padding: 20px;
-  font-family: 'Inter', -apple-system, sans-serif;
+  padding: 40px 20px;
+  background-color: var(--bg-color);
+  background-image: 
+    linear-gradient(transparent 97%, var(--grid-color) 100%),
+    linear-gradient(90deg, transparent 97%, var(--grid-color) 100%);
+  background-size: 40px 40px;
+  background-position: center;
+  font-family: 'Space Mono', monospace;
 }
 
 .auth-card {
-  background: var(--card-bg);
-  width: 100%;
-  max-width: 420px;
+  background-color: var(--card-bg);
+  border: var(--border-style);
+  border-radius: 8px;
   padding: 40px;
-  border-radius: 20px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 480px;
+  transition: all 0.2s ease;
 }
 
 .auth-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 35px;
 }
 
 .auth-header h1 {
-  font-size: 28px;
-  font-weight: 800;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: var(--text-main);
-  margin-bottom: 8px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
 }
 
 .auth-header p {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 0.85rem;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .input-group label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-main);
-  margin-left: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 2px;
 }
 
 .input-group input {
   padding: 12px 16px;
-  border: 1px solid var(--input-border);
-  border-radius: 10px;
-  font-size: 16px;
+  border: var(--border-style);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: 'Space Mono', monospace;
+  background-color: var(--card-bg);
+  color: var(--text-main);
   transition: all 0.2s ease;
   outline: none;
 }
 
 .input-group input:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+[data-theme='dark'] .input-group input:focus {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  color: white;
+  background-color: var(--primary);
+  color: #ffffff;
   padding: 14px;
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
   margin-top: 10px;
+  text-transform: uppercase;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover);
+  background-color: var(--secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-primary:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .auth-footer {
-  margin-top: 24px;
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   text-align: center;
 }
 
 .btn-link {
   background: none;
   border: none;
-  color: var(--primary-color);
-  font-weight: 500;
-  font-size: 14px;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.85rem;
   cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .btn-link:hover {
+  color: var(--secondary);
   text-decoration: underline;
 }
 
 .divider {
   position: relative;
   height: 1px;
-  background: #e5e7eb;
-  margin: 10px 0;
+  background: var(--border-style);
+  margin: 8px 0;
 }
 
 .divider span {
@@ -133,31 +153,36 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
-  padding: 0 10px;
-  color: #9ca3af;
-  font-size: 12px;
+  background: var(--card-bg);
+  padding: 0 12px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
   text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .btn-secondary {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: transparent;
+  border: var(--border-style);
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 6px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 0.85rem;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: #f9fafb;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: var(--text-main);
   color: var(--text-main);
-  border-color: #d1d5db;
 }
 
-/* ... keep your existing styles ... */
+[data-theme='dark'] .btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
 
 .password-wrapper {
   position: relative;
@@ -167,7 +192,7 @@
 
 .password-wrapper input {
   width: 100%;
-  padding-right: 60px; /* Make space for the button */
+  padding-right: 65px;
 }
 
 .password-toggle {
@@ -175,98 +200,181 @@
   right: 12px;
   background: none;
   border: none;
-  color: var(--primary-color);
-  font-size: 12px;
+  color: var(--primary);
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .password-toggle:hover {
-  background: rgba(79, 70, 229, 0.05);
-}
-
-/* Ensure consistent button heights */
-.btn-primary:active {
-  transform: scale(0.98);
-}
-
-/* ... Keep previous styles ... */
-
-/* UPDATED GRID BACKGROUND */
-.auth-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  background-color: #f8fafc;
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.05) 1.5px, transparent 1.5px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1.5px, transparent 1.5px);
-  background-size: 80px 80px; /* Large squares */
-  background-position: center;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 /* FAMILY SECTION STYLES */
 .family-section {
   margin-top: 10px;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
+  border-top: var(--border-style);
+  padding-top: 20px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .family-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 18px;
+  gap: 10px;
 }
 
 .family-header label {
-  font-size: 13px;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #475569;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .btn-add-small {
-  background: #eef2ff;
-  color: #4f46e5;
-  border: none;
-  padding: 4px 10px;
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 6px 14px;
   border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-add-small:hover {
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .family-member-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  animation: slideIn 0.2s ease-out;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 12px;
+  animation: slideIn 0.3s ease-out;
+  align-items: start;
+  width: 100%;
+  max-width: 100%;
 }
 
 .family-member-row input {
-  flex: 1;
-  padding: 8px 12px !important;
-  font-size: 13px !important;
-  border-radius: 8px !important;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: var(--border-style);
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  font-family: 'Space Mono', monospace;
+  transition: all 0.2s ease;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.family-member-row input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+[data-theme='dark'] .family-member-row input:focus {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
 }
 
 .btn-remove {
-  background: #fee2e2;
-  color: #ef4444;
-  border: none;
-  width: 32px;
-  border-radius: 8px;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.btn-remove:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+[data-theme='dark'] .btn-remove:hover {
+  background: rgba(251, 113, 133, 0.15);
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(-10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 850px) {
+  .auth-card {
+    padding: 25px 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .auth-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .family-section {
+    width: 100%;
+    padding-top: 15px;
+  }
+  
+  .family-member-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .btn-remove {
+    width: 100%;
+    height: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-card {
+    padding: 20px 15px;
+  }
+  
+  .family-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .btn-add-small {
+    width: 100%;
+    text-align: center;
+  }
 }
