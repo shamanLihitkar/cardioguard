@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import {pool} from "../config/db.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -23,6 +23,7 @@ const transporter = nodemailer.createTransport({
 export const sendAlertEmail = async ({
   to,
   userId,
+  name,
   heartRate,
   spo2,
   lat,
@@ -30,6 +31,19 @@ export const sendAlertEmail = async ({
   type = "CRITICAL", // default
 }) => {
   try {
+   const [users] = await pool.query(
+      "SELECT name, email FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if (!users.length) {
+      console.log("❌ User not found");
+      return;
+    }
+
+    const user = users[0];
+     
+
     const locationLink = `https://maps.google.com/?q=${lat},${lng}`;
 
     // 🔥 Dynamic subject
@@ -49,6 +63,8 @@ export const sendAlertEmail = async ({
       <h2>${subject}</h2>
 
       <p><strong>User ID:</strong> ${userId}</p>
+      <p><strong>Patient Name:</strong> ${user.name}</p>
+    
       <p><strong>Heart Rate:</strong> ${heartRate} bpm</p>
       <p><strong>SpO2:</strong> ${spo2}%</p>
 
@@ -82,7 +98,6 @@ export const sendAlertEmail = async ({
     await transporter.sendMail(mailOptions);
 
     console.log(`📧 Email sent to ${to} [${type}]`);
-
   } catch (err) {
     console.error("❌ Email error:", err);
     throw err;

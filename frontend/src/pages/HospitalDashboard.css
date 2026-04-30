@@ -1,0 +1,208 @@
+.dashboard-container {
+  padding: 20px;
+  max-width: 700px;
+  margin: auto;
+}
+
+.no-alerts {
+  text-align: center;
+  color: gray;
+}
+
+.alert-card {
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: 0.3s;
+}
+
+.alert-card:hover {
+  transform: translateY(-2px);
+}
+
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-card h3 {
+  color: #c62828;
+}
+
+.new-alert {
+  border: 2px solid red;
+  background: #fff5f5;
+}
+
+.badge {
+  background: red;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+:root {
+  --primary: #2563eb;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --bg-soft: #f8fafc;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.dashboard-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text-main);
+}
+
+h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 🔘 Modern Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: #e2e8f0;
+  padding: 0.25rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.tabs button.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+/* 📋 Alert Cards */
+.alert-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.alert-card:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.alert-card.new-alert {
+  border-left: 4px solid var(--danger);
+  background: #fff1f2;
+}
+
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.alert-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: var(--danger);
+}
+
+.badge {
+  background: var(--danger);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  font-weight: 800;
+  animation: pulse 2s infinite;
+}
+
+/* 📝 Content Styling */
+.alert-card p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.alert-card strong {
+  color: var(--text-muted);
+  font-weight: 500;
+  width: 100px;
+  display: inline-block;
+}
+
+/* 🔥 Action Buttons */
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.accept-btn, .reject-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.accept-btn { background: var(--success); color: white; }
+.reject-btn { background: #fee2e2; color: var(--danger); }
+
+.accept-btn:hover, .reject-btn:hover {
+  opacity: 0.85;
+}
+
+/* Empty State */
+.no-alerts {
+  text-align: center;
+  padding: 4rem;
+  background: var(--bg-soft);
+  border-radius: 16px;
+  color: var(--text-muted);
+  border: 2px dashed #cbd5e1;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.9; }
+  70% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.9; }
+}

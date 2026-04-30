@@ -6,25 +6,37 @@ import SimulationPage from './pages/SimulationPage';
 import DashboardPage from './pages/DashboardPage';
 import Auth from './pages/Auth';
 
-import ProtectedRoute from './components/ProtectedRoute';
+import HospitalLogin from './pages/HospitalAuth';
+import HospitalDashboard from './pages/HospitalDashboard';
 
+import RoleSelection from './pages/RoleSelection'; // ✅ NEW
+
+import ProtectedRoute from './components/ProtectedRoute';
+import HospitalProtectedRoute from './components/HospitalProtectedRoute';
+import AdminAuth from './pages/AdminAuth';
 import { ThemeProvider } from './context/ThemeContext';
 import { SimulationProvider } from './context/SimulationContext';
-
+import AdminDashboard from './pages/AdminDashboard';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 export default function App() {
   return (
     <ThemeProvider>
       <SimulationProvider>
         <Router>
+
           <Navbar />
 
           <Routes>
-            {/* 🔐 Auth Page */}
+
+            {/* 🌐 ENTRY POINT */}
+            <Route path="/" element={<RoleSelection />} />
+
+            {/* 🔐 USER AUTH */}
             <Route path="/auth" element={<Auth />} />
 
-            {/* 🔒 Protected Routes */}
+            {/* 🔒 USER ROUTES */}
             <Route
-              path="/"
+              path="/home"
               element={
                 <ProtectedRoute>
                   <SimulationPage />
@@ -40,7 +52,30 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* 🏥 HOSPITAL ROUTES */}
+            <Route path="/hospital/login" element={<HospitalLogin />} />
+
+            <Route
+              path="/hospital/dashboard"
+              element={
+                <HospitalProtectedRoute>
+                  <HospitalDashboard />
+                </HospitalProtectedRoute>
+              }
+            />
+            {/* ADMIN ROUTES */}
+            <Route path='/admin/login' element={<AdminAuth/>}/>
+              <Route
+              path="/admin/dashboard"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboard/>
+                </AdminProtectedRoute>
+              }
+              />
           </Routes>
+
         </Router>
       </SimulationProvider>
     </ThemeProvider>

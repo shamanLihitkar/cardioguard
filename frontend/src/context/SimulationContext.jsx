@@ -13,6 +13,8 @@ const workoutProfiles = {
 
 export const SimulationProvider = ({ children }) => {
   const [isRunning, setIsRunning] = useState(false);
+  const [isEmergency, setIsEmergency] = useState(false); // ✅ NEW
+
   const [workout, setWorkout] = useState("Running");
   const [phase, setPhase] = useState("Warm-up");
   const [scenario, setScenario] = useState("Normal");
@@ -27,12 +29,14 @@ export const SimulationProvider = ({ children }) => {
   const [history, setHistory] = useState([]);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [logs, setLogs] = useState([]);
+  const [location, setLocation] = useState(null);
 
   const prevStatusRef = useRef("success");
   const socketRef = useRef(null);
   const sendCounterRef = useRef(0);
+  const locationWatchId = useRef(null);
 
-  // 🔌 SOCKET CONNECTION
+  // 🔌 SOCKET
   useEffect(() => {
     socketRef.current = io("http://localhost:5000");
 
@@ -40,34 +44,41 @@ export const SimulationProvider = ({ children }) => {
       console.log("✅ Connected to backend");
     });
 
+    return () => socketRef.current.disconnect();
+  }, []);
+
+  // 📍 LOCATION
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    locationWatchId.current = navigator.geolocation.watchPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => console.log("Location error:", error.message),
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+
     return () => {
-      socketRef.current.disconnect();
+      if (locationWatchId.current) {
+        navigator.geolocation.clearWatch(locationWatchId.current);
+      }
     };
   }, []);
 
   const addLog = (message, type = "info") => {
-    const time = new Date().toLocaleTimeString([], {
-      hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    });
+    const time = new Date().toLocaleTimeString();
     setLogs(prev => [{ time, message, type }, ...prev].slice(0, 50));
   };
 
   useEffect(() => {
-    addLog(isRunning ? "System simulation initialized." : "System simulation halted.", "info");
+    addLog(isRunning ? "System simulation started." : "Simulation stopped.");
   }, [isRunning]);
 
-  useEffect(() => {
-    addLog(`Phase shifted to: ${phase}`, "info");
-  }, [phase]);
-
-  useEffect(() => {
-    if (scenario !== "Normal") addLog(`ANOMALY INJECTED: ${scenario}`, "danger");
-    else addLog("Scenario normalized.", "success");
-  }, [scenario]);
-
+  // 🚀 SIMULATION LOOP
   useEffect(() => {
     let interval;
 
@@ -79,75 +90,23 @@ export const SimulationProvider = ({ children }) => {
           const profile = workoutProfiles[workout];
           let { hr, spo2, fatigue } = prev;
 
-          let phaseMult =
-            phase === "Warm-up" ? 0.8 :
-            phase === "Active" ? 1.0 :
-            phase === "Peak" ? 1.3 : 0.6;
-
-          let targetHr = (profile.baseHr * phaseMult) + (intensity * 0.45);
-
-          if (scenario === "HR Spike") targetHr = 195;
-          if (scenario === "Irregular HR") targetHr += (Math.random() > 0.5 ? 45 : -45);
-
-          hr += (targetHr - hr) * 0.12;
-          hr += (Math.random() * 3 - 1.5);
-
-          let exertionDip = profile.spo2Dip * (intensity / 100) * phaseMult;
-
-          if (hr > 165) exertionDip += (hr - 165) * 0.1;
-
-          let targetSpo2 = 99.0 - exertionDip;
-
-          if (scenario === "Oxygen Drop") targetSpo2 = 84.0;
-
-          let breathRate = workout === "Swimming" ? 3 : 1.5;
-          let breathingVariance = Math.sin(elapsedTime / breathRate) * (workout === "Swimming" ? 1.2 : 0.4);
-
-          spo2 += (targetSpo2 + breathingVariance - spo2) * 0.2;
-          spo2 = Math.max(70, Math.min(100, spo2));
-
-          let hrStrain = Math.max(0, (hr - 80) / (200 - 80));
-          let baseFatigueRate = Math.pow(hrStrain, 2) * 1.5;
-
-          if (scenario === "Overtraining") baseFatigueRate *= 2.5;
-
-          let isRecovering = phase === "Cooldown" || hr < 100;
-
-          if (isRecovering) baseFatigueRate = -0.8;
-
-          let recoveryPenalty = isRecovering ? 0.33 : 1;
-
-          let newCardio = Math.max(0, Math.min(100, fatigue.cardio + baseFatigueRate * profile.cardioStress));
-          let newMuscle = Math.max(0, Math.min(100, fatigue.muscle + baseFatigueRate * profile.muscleStress * recoveryPenalty));
-          let newLeg = Math.max(0, Math.min(100, fatigue.leg + baseFatigueRate * profile.legStress * recoveryPenalty));
-
-          let newOverall = (newCardio * 0.3) + (newMuscle * 0.45) + (newLeg * 0.25);
-
-          let currentStatus = "success";
-
-          if (hr > 185 || spo2 < 90 || newOverall > 90) currentStatus = "danger";
-          else if (hr > 165 || spo2 < 94 || newOverall > 70) currentStatus = "warning";
-
-          if (currentStatus !== prevStatusRef.current) {
-            if (currentStatus === "danger") addLog("CRITICAL RISK detected", "danger");
-            else if (currentStatus === "warning") addLog("HIGH STRAIN detected", "warning");
-            else addLog("Vitals stabilized", "success");
-
-            prevStatusRef.current = currentStatus;
+          // 🚨 EMERGENCY OVERRIDE
+          if (isEmergency) {
+            hr = 0;
+          } else {
+            let targetHr = profile.baseHr + intensity * 0.4;
+            if (scenario === "HR Spike") targetHr = 195;
+            hr += (targetHr - hr) * 0.1;
           }
 
+          spo2 = Math.max(90, 99 - intensity * 0.05);
+
           const newVitals = {
+            ...prev,
             hr: Math.round(hr),
-            spo2: Number(spo2.toFixed(1)),
-            fatigue: {
-              overall: Number(newOverall.toFixed(1)),
-              cardio: Number(newCardio.toFixed(1)),
-              muscle: Number(newMuscle.toFixed(1)),
-              leg: Number(newLeg.toFixed(1))
-            }
+            spo2,
           };
 
-          // 📡 SEND DATA EVERY 5 SECONDS
           sendCounterRef.current++;
 
           if (sendCounterRef.current % 5 === 0 && socketRef.current) {
@@ -157,12 +116,11 @@ export const SimulationProvider = ({ children }) => {
               userId: Number(userId) || 1,
               heartRate: newVitals.hr,
               spo2: newVitals.spo2,
-              lat: 18.52,
-              lng: 73.85
+              lat: location?.lat || null,
+              lng: location?.lng || null,
             };
 
             console.log("📡 Sending vitals:", payload);
-
             socketRef.current.emit("vitals", payload);
           }
 
@@ -182,16 +140,19 @@ export const SimulationProvider = ({ children }) => {
     }
 
     return () => clearInterval(interval);
-  }, [isRunning, workout, phase, scenario, intensity, elapsedTime]);
+  }, [isRunning, workout, scenario, intensity, location, isEmergency]); // ✅ added dependency
 
   useEffect(() => {
-    if (!isRunning) {
-      sendCounterRef.current = 0;
-    }
+    if (!isRunning) sendCounterRef.current = 0;
   }, [isRunning]);
+
+  const toggleEmergency = () => {
+    setIsEmergency(prev => !prev);
+  };
 
   const resetSimulation = () => {
     setIsRunning(false);
+    setIsEmergency(false); // ✅ reset
     setElapsedTime(0);
     setVitals({
       hr: 75,
@@ -212,7 +173,9 @@ export const SimulationProvider = ({ children }) => {
       intensity, setIntensity,
       vitals, history,
       elapsedTime, logs,
-      resetSimulation
+      resetSimulation,
+      toggleEmergency,
+      isEmergency
     }}>
       {children}
     </SimulationContext.Provider>

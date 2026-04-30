@@ -1,0 +1,101 @@
+.dashboard-container {
+  padding: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f6;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.dashboard-header h1 span {
+  color: #e74c3c;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  background: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  font-size: 1.1rem;
+}
+
+.management-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+  border-bottom: 2px solid #f4f7f6;
+  padding-bottom: 10px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  padding: 15px;
+  background-color: #f8f9fa;
+  color: #7f8c8d;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.admin-table td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  color: #34495e;
+}
+
+.admin-table tr:hover {
+  background-color: #fcfcfc;
+}
+
+.delete-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #cc0000;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

@@ -3,19 +3,29 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
-import { handleSocket } from "./sockets/socketHandler.js";
+
+import { handleSocket, initSocket } from "./sockets/socketHandler.js";
+
 import { initDB } from "../scripts/dbInit.js";
 import { initTables } from "../scripts/tablesInit.js";
+
 import authRoutes from "./routes/authRoutes.js";
 import alertRoutes from "./routes/alertRoutes.js";
+import hospitalRoutes from "./routes/hospitalRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 dotenv.config();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
-app.use("/auth",authRoutes);
-app.use("/alerts",alertRoutes);
+
+app.use("/auth", authRoutes);
+app.use("/alerts", alertRoutes);
+app.use("/api/hospitals", hospitalRoutes);
+app.use("/admin", adminRoutes);
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -24,10 +34,12 @@ const io = new Server(server, {
   },
 });
 
-// Socket setup
+// 🔥 IMPORTANT FIX
+initSocket(io);
+
+// existing
 handleSocket(io);
 
-// Test route (optional)
 app.post("/vitals", (req, res) => {
   console.log("REST vitals:", req.body);
   res.send("Ok");
@@ -35,7 +47,6 @@ app.post("/vitals", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// 🚀 Proper startup sequence
 const startServer = async () => {
   try {
     console.log("⚙️ Initializing database...");
@@ -51,7 +62,7 @@ const startServer = async () => {
 
   } catch (err) {
     console.error("❌ Startup error:", err);
-    process.exit(1); // stop app if DB fails
+    process.exit(1);
   }
 };
 

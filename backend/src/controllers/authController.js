@@ -5,7 +5,9 @@ import jwt from "jsonwebtoken";
 // 🔐 REGISTER
 export const register = async (req, res) => {
   try {
-    const { name, email, password, familyContacts } = req.body;
+    
+    const { name, email, password, familyMembers } = req.body;
+    console.log(familyMembers);
 
     // check if user exists
     const [existing] = await pool.query("SELECT * FROM users WHERE email = ?", [
@@ -28,11 +30,21 @@ export const register = async (req, res) => {
     );
 
     const userId = result.insertId;
-
+    console.log(userId);
+    if (!Array.isArray(familyMembers)) {
+  return res.status(400).json({
+    message: "familyMembers must be an array",
+  });
+}
     // 🔥 INSERT FAMILY CONTACTS
-    if (familyContacts && familyContacts.length > 0) {
-      for (const member of familyContacts) {
-        if (!member.name || !member.email) continue;
+    if (familyMembers && familyMembers.length > 0) {
+      for (const member of familyMembers) {
+       
+        
+        if (!member.name || !member.email) {
+          console.log("Invalid member:", member);
+          continue;
+        }
 
         await pool.query(
           "INSERT INTO family_contacts (user_id, name, email) VALUES (?, ?, ?)",

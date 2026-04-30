@@ -14,7 +14,7 @@ dotenv.config({
 // 🔍 DEBUG (REMOVE LATER)
 console.log("DB ENV:", {
   user: process.env.DB_USER,
-  pass: process.env.DB_PASSWORD,
+  pass: process.env.DB_PASS,
 });
 
 export const pool = mysql.createPool({
