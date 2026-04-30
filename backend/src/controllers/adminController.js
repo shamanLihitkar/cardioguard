@@ -3,12 +3,14 @@ import bcrypt from "bcrypt";
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
     const [rows] = await pool.query(
       `
             SELECT * FROM admin WHERE email=?
             `,
       [email]
     );
+    
     if (!adminLogin.length) {
       return res.status(404).json({ message: "Admin not found" });
     }

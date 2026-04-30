@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { SimulationContext } from "../context/SimulationContext";
 import {
   Play,
@@ -202,7 +202,6 @@ export default function SimulationPage() {
               <div className="engine-actions">
                 <button
                   className={`btn ${isRunning ? "active btn-danger" : "btn-primary"}`}
-                  style={{ padding: "12px 30px" }}
                   onClick={() => setIsRunning(!isRunning)}
                 >
                   {isRunning ? (
@@ -219,7 +218,6 @@ export default function SimulationPage() {
                 <button
                   className="btn"
                   onClick={resetSimulation}
-                  style={{ padding: "12px" }}
                 >
                   <RotateCcw size={16} />
                 </button>

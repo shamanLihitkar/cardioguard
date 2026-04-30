@@ -7,7 +7,7 @@ export default function MiniFatigueGraph({ title, data, dataKey, color, value })
     <div className="mini-graph-wrapper" style={{ borderLeftColor: color }}>
       <div className="mini-graph-top">
         <span className="mini-graph-title">{title}</span>
-        <span className="retro-heading mini-graph-val" style={{ color }}>{value}%</span>
+        <span className="retro-heading mini-graph-val" style={{ color }}>{Number(value).toFixed(1)}%</span>
       </div>
       <div className="mini-graph-chart">
         <ResponsiveContainer width="100%" height="100%">

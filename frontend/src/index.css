@@ -111,6 +111,7 @@ h1, h2, h3, h4, .retro-heading {
   justify-content: center;
   gap: 8px;
   white-space: nowrap;
+  min-height: 40px; /* Consistent minimum height */
 }
 
 .btn:hover { background-color: rgba(0, 0, 0, 0.05); border-color: var(--text-main); }
@@ -124,6 +125,13 @@ h1, h2, h3, h4, .retro-heading {
 .btn-danger { border-color: var(--danger); color: var(--danger); }
 .btn-danger:hover { background-color: rgba(239, 68, 68, 0.1); }
 .btn-danger.active { background-color: var(--danger); color: #fff; border-color: var(--danger); }
+
+/* Navbar specific button sizing */
+.nav-btn {
+  padding: 10px 18px;
+  min-height: 40px;
+  font-size: 0.85rem;
+}
 
 .grid-layout { display: grid; gap: 30px; }
 .flex-row { display: flex; gap: 12px; flex-wrap: wrap; }

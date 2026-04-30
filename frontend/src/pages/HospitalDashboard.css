@@ -1,208 +1,309 @@
+/* Hospital Dashboard - Matching SimulationPage Theme */
+
 .dashboard-container {
-  padding: 20px;
-  max-width: 700px;
-  margin: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  font-family: 'Space Mono', monospace;
+  color: var(--text-main);
+  min-height: 100vh;
 }
 
-.no-alerts {
-  text-align: center;
-  color: gray;
-}
-
-.alert-card {
-  border-radius: 10px;
-  padding: 15px;
-  margin: 15px 0;
-  background: #fff;
-  border: 1px solid #ddd;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  transition: 0.3s;
-}
-
-.alert-card:hover {
-  transform: translateY(-2px);
-}
-
-.alert-header {
+.dashboard-container h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 30px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.alert-card h3 {
-  color: #c62828;
-}
-
-.new-alert {
-  border: 2px solid red;
-  background: #fff5f5;
-}
-
-.badge {
-  background: red;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-:root {
-  --primary: #2563eb;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --bg-soft: #f8fafc;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-
-.dashboard-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  font-family: 'Inter', system-ui, sans-serif;
+  gap: 12px;
   color: var(--text-main);
 }
 
-h2 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* 🔘 Modern Tabs */
+/* Modern Tabs */
 .tabs {
   display: flex;
-  gap: 0.5rem;
-  background: #e2e8f0;
-  padding: 0.25rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
+  gap: 12px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 30px;
+  border-bottom: var(--border-style);
+  padding-bottom: 0;
 }
 
 .tabs button {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 12px 20px;
   border: none;
   background: transparent;
-  font-weight: 600;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
   color: var(--text-muted);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 0;
   transition: all 0.2s ease;
+  text-transform: uppercase;
+  position: relative;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs button:hover {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .tabs button:hover {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .tabs button.active {
-  background: white;
-  color: var(--primary);
-  box-shadow: var(--shadow);
+  background: transparent;
+  color: var(--success);
+  border-bottom-color: var(--success);
+  box-shadow: none;
 }
 
-/* 📋 Alert Cards */
+.tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--success);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Alert Cards */
 .alert-card {
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: var(--card-bg);
+  border: var(--border-style);
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
 }
 
 .alert-card:hover {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+[data-theme='dark'] .alert-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(96, 165, 250, 0.15);
 }
 
 .alert-card.new-alert {
   border-left: 4px solid var(--danger);
-  background: #fff1f2;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+[data-theme='dark'] .alert-card.new-alert {
+  background: rgba(251, 113, 133, 0.1);
 }
 
 .alert-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: var(--border-style);
 }
 
 .alert-header h3 {
   margin: 0;
+  font-family: 'Orbitron', sans-serif;
   font-size: 1.1rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 1px;
   color: var(--danger);
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .badge {
   background: var(--danger);
-  color: white;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 99px;
-  font-weight: 800;
-  animation: pulse 2s infinite;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: badgePulse 2s ease-in-out infinite;
 }
 
-/* 📝 Content Styling */
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+/* Content Styling */
 .alert-card p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
+  margin: 12px 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-main);
 }
 
 .alert-card strong {
   color: var(--text-muted);
-  font-weight: 500;
-  width: 100px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
   display: inline-block;
+  min-width: 100px;
 }
 
-/* 🔥 Action Buttons */
+/* Action Buttons */
 .actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #f1f5f9;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: var(--border-style);
 }
 
-.accept-btn, .reject-btn {
+.accept-btn,
+.reject-btn {
   flex: 1;
-  padding: 0.8rem;
+  padding: 12px 20px;
   border: none;
-  border-radius: 10px;
-  font-weight: 600;
+  border-radius: 6px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  transition: opacity 0.2s;
+  gap: 8px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
 }
 
-.accept-btn { background: var(--success); color: white; }
-.reject-btn { background: #fee2e2; color: var(--danger); }
+.accept-btn {
+  background: var(--success);
+  color: #ffffff;
+  border: 1px solid var(--success);
+}
 
-.accept-btn:hover, .reject-btn:hover {
-  opacity: 0.85;
+.accept-btn:hover {
+  background: var(--info);
+  border-color: var(--info);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.reject-btn {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.reject-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  transform: translateY(-1px);
+}
+
+[data-theme='dark'] .reject-btn:hover {
+  background: rgba(251, 113, 133, 0.15);
+}
+
+.accept-btn:active,
+.reject-btn:active {
+  transform: translateY(0);
 }
 
 /* Empty State */
 .no-alerts {
   text-align: center;
-  padding: 4rem;
-  background: var(--bg-soft);
-  border-radius: 16px;
+  padding: 60px 40px;
+  background: transparent;
+  border-radius: 8px;
   color: var(--text-muted);
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed var(--text-muted);
+  font-size: 1rem;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.5px;
 }
 
-@keyframes pulse {
-  0% { transform: scale(0.95); opacity: 0.9; }
-  70% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.9; }
+/* Responsive Design */
+@media (max-width: 850px) {
+  .dashboard-container {
+    padding: 20px 15px;
+  }
+
+  .dashboard-container h2 {
+    font-size: 1.4rem;
+  }
+
+  .tabs {
+    flex-direction: column;
+    gap: 0;
+    border-bottom: none;
+  }
+
+  .tabs button {
+    border-bottom: var(--border-style);
+    border-left: 3px solid transparent;
+    padding: 12px 15px;
+  }
+
+  .tabs button.active {
+    border-bottom: var(--border-style);
+    border-left-color: var(--success);
+  }
+
+  .tabs button.active::after {
+    display: none;
+  }
+
+  .alert-card {
+    padding: 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .accept-btn,
+  .reject-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-container h2 {
+    font-size: 1.2rem;
+    gap: 8px;
+  }
+
+  .alert-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .alert-card strong {
+    display: block;
+    margin-bottom: 4px;
+  }
 }
