@@ -9,10 +9,13 @@ import { findNearestHospital } from "../services/hospitalService.js";
 import { saveHospitalAlert } from "../services/hospitalAlertService.js";
 
 import IORedis from "ioredis";
+import dotenv from "dotenv";
 
-const redis = new IORedis({
-  host: "127.0.0.1",
-  port: 6379,
+dotenv.config();
+ 
+const redis = new IORedis(process.env.REDIS_URL, {
+  maxRetriesPerRequest: null,
+  retryStrategy: (times) => Math.min(times * 50, 2000),
 });
 
 // 🔥 HELPER: Get latest vitals safely

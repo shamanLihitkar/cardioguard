@@ -1,10 +1,11 @@
 import { Queue } from "bullmq";
 import IORedis from "ioredis";
-
-const connection = new IORedis({
-  host: "127.0.0.1",
-  port: 6379,
-   maxRetriesPerRequest: null, 
+import dotenv from "dotenv";
+dotenv.config();
+ 
+const connection = new IORedis(process.env.REDIS_URL, {
+  maxRetriesPerRequest: null,
+  retryStrategy: (times) => Math.min(times * 50, 2000),
 });
 
 export const vitalsQueue = new Queue("vitalsQueue", {

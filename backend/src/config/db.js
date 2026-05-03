@@ -11,15 +11,11 @@ dotenv.config({
   path: path.resolve(__dirname, "../../.env"),
 });
 
-// 🔍 DEBUG (REMOVE LATER)
-console.log("DB ENV:", {
-  user: process.env.DB_USER,
-  pass: process.env.DB_PASS,
-});
+
 
 export const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+  uri: process.env.MYSQL_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });

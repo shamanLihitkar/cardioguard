@@ -11,11 +11,10 @@ import { saveHospitalAlert } from "../services/hospitalAlertService.js";
 import { pool } from "../config/db.js";
 
 dotenv.config();
-
-const connection = new IORedis({
-  host: "127.0.0.1",
-  port: 6379,
+console.log(process.env.REDIS_URL);
+const connection = new IORedis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null,
+  retryStrategy: (times) => Math.min(times * 50, 2000),
 });
 
 const worker = new Worker(

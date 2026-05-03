@@ -4,12 +4,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const initTables = async () => {
-  const connection = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: process.env.DB_PASS,
-    database: "cardioguard",
-  });
+ 
+  
+ const connection = await mysql.createConnection({
+  uri: process.env.MYSQL_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
   await connection.query(`
     CREATE TABLE IF NOT EXISTS users (
