@@ -2,7 +2,8 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import {pool} from "../config/db.js";
+import { pool } from "../config/db.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -10,7 +11,6 @@ dotenv.config({
   path: path.resolve(__dirname, "../../.env"),
 });
 
-// 🔌 Create transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -18,9 +18,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
-// 📧 Send Alert Email
-
 
 export const sendAlertEmail = async ({
   to,
@@ -31,7 +28,6 @@ export const sendAlertEmail = async ({
   lng,
   type = "CRITICAL",
 
-  // 🏥 NEW FIELDS
   patientName,
   hospitalName,
   hospitalLat,
@@ -42,18 +38,13 @@ export const sendAlertEmail = async ({
     let html = "";
 
     // ================================
-    // 🚨 HEALTH ALERT EMAIL
+    // 🚨 USER / FAMILY ALERT
     // ================================
     if (type === "CRITICAL" || type === "HIGH_HEART_RATE") {
       const [users] = await pool.query(
         "SELECT name FROM users WHERE id = ?",
         [userId]
       );
-
-      if (!users.length) {
-        console.log("❌ User not found");
-        return;
-      }
 
       const user = users[0];
 
@@ -64,81 +55,76 @@ export const sendAlertEmail = async ({
           ? "🚨 Emergency Health Alert"
           : "⚠️ High Heart Rate Warning";
 
-      const message =
-        type === "CRITICAL"
-          ? "Immediate medical attention may be required."
-          : "User's heart rate is consistently high.";
-
       html = `
         <h2>${subject}</h2>
-
-        <p><strong>Patient Name:</strong> ${user.name}</p>
-        <p><strong>Heart Rate:</strong> ${heartRate} bpm</p>
-        <p><strong>SpO2:</strong> ${spo2}%</p>
-
-        <p style="color:${
-          type === "CRITICAL" ? "red" : "orange"
-        }; font-weight:bold;">
-          ${message}
-        </p>
+        <p><strong>Patient:</strong> ${user.name}</p>
+        <p><strong>Heart Rate:</strong> ${heartRate}</p>
+        <p><strong>SpO2:</strong> ${spo2}</p>
 
         <p>
-          📍 <strong>Location:</strong>
-          <a href="${locationLink}" target="_blank">
-            View on Google Maps
-          </a>
+          📍 <a href="${locationLink}">View Location</a>
         </p>
       `;
     }
 
     // ================================
-    // 🏥 HOSPITAL ACCEPTED EMAIL
+    // 🏥 HOSPITAL ALERT (FIXED)
+    // ================================
+    if (type === "CRITICAL_HOSPITAL") {
+      const locationLink = `https://maps.google.com/?q=${lat},${lng}`;
+
+      subject = "🚨 Emergency Patient Incoming";
+
+      html = `
+        <h2>🚨 Emergency Case</h2>
+
+        <p><strong>Patient:</strong> ${patientName}</p>
+        <p><strong>Heart Rate:</strong> ${heartRate}</p>
+        <p><strong>SpO2:</strong> ${spo2}</p>
+
+        <p>
+          📍 <a href="${locationLink}">
+            Patient Location
+          </a>
+        </p>
+
+        <p style="color:red;">
+          Immediate attention required.
+        </p>
+      `;
+    }
+
+    // ================================
+    // 🏥 ACCEPT EMAIL
     // ================================
     if (type === "HOSPITAL_ACCEPTED") {
       const locationLink = `https://maps.google.com/?q=${hospitalLat},${hospitalLng}`;
 
-      subject = "🚑 Patient Admitted to Hospital";
+      subject = "🚑 Patient Admitted";
 
       html = `
-        <h2>🚑 Patient Accepted by Hospital</h2>
+        <h2>Patient Admitted</h2>
 
         <p><strong>Patient:</strong> ${patientName}</p>
+        <p><strong>Hospital:</strong> ${hospitalName}</p>
 
         <p>
-          🏥 <strong>Hospital:</strong> ${hospitalName}
-        </p>
-
-        <p>
-          📍 <strong>Location:</strong>
-          <a href="${locationLink}" target="_blank">
-            View on Google Maps
+          📍 <a href="${locationLink}">
+            Hospital Location
           </a>
-        </p>
-
-        <p style="color:green; font-weight:bold;">
-          The patient is now under medical care.
-        </p>
-
-        <hr/>
-        <p style="font-size:12px;color:gray;">
-          CardioGuard System Notification
         </p>
       `;
     }
 
-    // ================================
-    // 📧 SEND EMAIL
-    // ================================
-    const mailOptions = {
+    await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to,
       subject,
       html,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
+    console.log(`📧 Email sent → ${to} (${type})`);
 
-    console.log(`📧 Email sent to ${to} [${type}]`);
   } catch (err) {
     console.error("❌ Email error:", err);
     throw err;

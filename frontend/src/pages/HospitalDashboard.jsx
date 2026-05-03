@@ -9,7 +9,7 @@ export default function HospitalDashboard() {
   const hospitalId = localStorage.getItem("hospitalId");
   const playNotification = () => {
     const audio = new Audio()
-      audio.src="https://www.myinstants.com/media/sounds/chodu-cid-tum-ek.mp3"
+      audio.src="https://www.myinstants.com/media/sounds/gey-echo.mp3"
     audio.load()
     audio.play().then(()=>{
       console.log("Playback started");

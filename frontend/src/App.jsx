@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import ForgotPassword from './pages/ForgotPassword';
 import Navbar from './components/Navbar';
 import SimulationPage from './pages/SimulationPage';
 import DashboardPage from './pages/DashboardPage';
@@ -33,7 +33,7 @@ export default function App() {
 
             {/* 🔐 USER AUTH */}
             <Route path="/auth" element={<Auth />} />
-
+            <Route path="/Forgot-password" element={<ForgotPassword/>}/>
             {/* 🔒 USER ROUTES */}
             <Route
               path="/home"

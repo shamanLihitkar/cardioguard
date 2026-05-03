@@ -12,7 +12,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // 👨‍👩‍👧‍👦 Family Members State
   const [familyMembers, setFamilyMembers] = useState([]);
 
@@ -33,7 +33,10 @@ export default function Auth() {
   const addFamilyMember = () => {
     setFamilyMembers([...familyMembers, { name: "", email: "" }]);
   };
-
+  const handleForgotPassword=()=>{
+   navigate("/forgot-password")
+    
+  }
   const removeFamilyMember = (index) => {
     const updated = familyMembers.filter((_, i) => i !== index);
     setFamilyMembers(updated);
@@ -54,11 +57,11 @@ export default function Auth() {
         : "http://localhost:5000/auth/register";
 
       // Include familyMembers in payload if registering
-      const payload = isLogin 
-        ? { email, password } 
+      const payload = isLogin
+        ? { email, password }
         : { name, email, password, familyMembers };
       console.log(familyMembers);
-      
+
       const res = await axios.post(url, payload);
 
       localStorage.removeItem("hospitalId");
@@ -79,7 +82,11 @@ export default function Auth() {
       <div className="auth-card">
         <div className="auth-header">
           <h1>{isLogin ? "Welcome Back" : "Create Account"}</h1>
-          <p>{isLogin ? "Sign in to access your dashboard" : "Join our platform today"}</p>
+          <p>
+            {isLogin
+              ? "Sign in to access your dashboard"
+              : "Join our platform today"}
+          </p>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -117,8 +124,8 @@ export default function Auth() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
               >
@@ -132,11 +139,15 @@ export default function Auth() {
             <div className="family-section">
               <div className="family-header">
                 <label>Family Members (Optional)</label>
-                <button type="button" className="btn-add-small" onClick={addFamilyMember}>
+                <button
+                  type="button"
+                  className="btn-add-small"
+                  onClick={addFamilyMember}
+                >
                   + Add
                 </button>
               </div>
-              
+
               {familyMembers.map((member, index) => (
                 <div key={index} className="family-member-row">
                   <input
@@ -144,17 +155,21 @@ export default function Auth() {
                     placeholder="Name"
                     value={member.name}
                     required
-                    onChange={(e) => handleFamilyChange(index, "name", e.target.value)}
+                    onChange={(e) =>
+                      handleFamilyChange(index, "name", e.target.value)
+                    }
                   />
                   <input
                     type="email"
                     placeholder="Email"
                     value={member.email}
                     required
-                    onChange={(e) => handleFamilyChange(index, "email", e.target.value)}
+                    onChange={(e) =>
+                      handleFamilyChange(index, "email", e.target.value)
+                    }
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn-remove"
                     onClick={() => removeFamilyMember(index)}
                   >
@@ -165,16 +180,34 @@ export default function Auth() {
             </div>
           )}
 
-          <button type="submit" className="btn-primary" style={{"color":"white"}} disabled={loading}>
+          <button
+            type="submit"
+            className="btn-primary"
+            style={{ color: "white" }}
+            disabled={loading}
+          >
             {loading ? "Processing..." : isLogin ? "Sign In" : "Register"}
+          </button>
+          <button
+            type="submit"
+            className="btn-primary"
+            style={{ color: "white",backgroundColor:"red" }}
+            disabled={loading}
+            onClick={handleForgotPassword}
+          >
+            Forgot password
           </button>
         </form>
 
         <div className="auth-footer">
           <button className="btn-link" onClick={() => setIsLogin(!isLogin)}>
-            {isLogin ? "Don't have an account? Sign Up" : "Already registered? Sign In"}
+            {isLogin
+              ? "Don't have an account? Sign Up"
+              : "Already registered? Sign In"}
           </button>
-          <div className="divider"><span>or</span></div>
+          <div className="divider">
+            <span>or</span>
+          </div>
           <button className="btn-secondary" onClick={() => navigate("/")}>
             Return to Landing Page
           </button>

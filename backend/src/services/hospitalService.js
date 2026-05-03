@@ -1,24 +1,14 @@
-// services/hospitalService.js
+import { pool } from "../config/db.js";
 
-import {pool} from "../config/db.js";
-
-/**
- * Find nearest hospital using Haversine formula (SQL)
- */
-
-
-/**
- * Find nearest hospital using Haversine formula (SQL)
- */
-export async function findNearestHospital(userLat, userLng) {
+export const findNearestHospital = async (
+  userLat,
+  userLng,
+  excludeHospitalId = null
+) => {
   try {
-    // 🔴 Guard: missing location
-    if (userLat == null || userLng == null) {
-      console.log("⚠️ User location missing");
-      return null;
-    }
-
-    const query = `
+    console.log(excludeHospitalId);
+    
+    let query = `
       SELECT 
         id,
         name,
@@ -27,35 +17,40 @@ export async function findNearestHospital(userLat, userLng) {
         longitude,
         (
           6371 * acos(
-            cos(radians(?)) *
-            cos(radians(latitude)) *
-            cos(radians(longitude) - radians(?)) +
-            sin(radians(?)) *
-            sin(radians(latitude))
+            LEAST(1,
+              cos(radians(?)) *
+              cos(radians(latitude)) *
+              cos(radians(longitude) - radians(?)) +
+              sin(radians(?)) *
+              sin(radians(latitude))
+            )
           )
         ) AS distance
       FROM hospitals
-      HAVING distance IS NOT NULL
-      ORDER BY distance ASC
-      LIMIT 1;
     `;
 
-    const [rows] = await pool.query(query, [
-      userLat,
-      userLng,
-      userLat,
-    ]);
+    const params = [userLat, userLng, userLat];
+
+    // 🔥 ONLY add WHERE if exclude exists
+    if (excludeHospitalId !== null && excludeHospitalId !== undefined) {
+      query += ` WHERE id != ?`;
+      params.push(excludeHospitalId);
+    }
+
+    query += ` ORDER BY distance ASC LIMIT 1`;
+
+    const [rows] = await pool.query(query, params);
 
     if (!rows.length) {
       console.log("❌ No hospitals found");
       return null;
     }
 
+    console.log("🏥 Found hospital:", rows[0]);
+
     return rows[0];
-
-  } catch (error) {
-    console.error("❌ Error in findNearestHospital:", error);
-    throw error;
+  } catch (err) {
+    console.error("❌ findNearestHospital error:", err);
+    return null;
   }
-}
-
+};

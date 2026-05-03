@@ -84,6 +84,16 @@ export const initTables = async () => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
       `)
+      await connection.query(
+        `
+        CREATE TABLE IF NOT EXISTS otpTable(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        otp INT,
+        expires_in DATETIME NOT NULL
+        ) 
+        `
+      );
   console.log("✅ Tables initialized");
 
   await connection.end();

@@ -8,6 +8,7 @@ import { saveAlert } from "../services/alertDbService.js";
 
 import { findNearestHospital } from "../services/hospitalService.js";
 import { saveHospitalAlert } from "../services/hospitalAlertService.js";
+import { pool } from "../config/db.js";
 
 dotenv.config();
 
@@ -43,7 +44,6 @@ const worker = new Worker(
       const readings = await connection.lrange(vitalsKey, 0, 3);
       const parsed = readings.map((r) => JSON.parse(r));
 
-      // 🚨 Conditions
       const isCritical =
         parsed.length === 4 &&
         parsed.every((r) => r.heartRate === 0);
@@ -55,20 +55,30 @@ const worker = new Worker(
       const lastAlert = await connection.get(alertKey);
       const now = Date.now();
       const COOLDOWN = 30000;
-
+      console.log(isCritical);
+      
       if (isCritical || isHighHR) {
         if (!lastAlert || now - lastAlert > COOLDOWN) {
 
           let alertType = "";
           let hospital = null;
-
+          console.log("above critical flow");
+          
           // 🚨 CRITICAL FLOW
           if (isCritical) {
+            console.log("in critical flow");
             alertType = "CRITICAL";
-            console.log(`🚨 EMERGENCY for user ${userId}`);
+
+            // 🔍 Get patient name
+            const [users] = await pool.query(
+              "SELECT name FROM users WHERE id = ?",
+              [userId]
+            );
+            const patientName = users[0]?.name || "Patient";
 
             hospital = await findNearestHospital(lat, lng);
-
+            console.log("Hospital object: "+ hospital);
+            
             if (hospital) {
               await saveHospitalAlert({
                 hospitalId: hospital.id,
@@ -77,25 +87,41 @@ const worker = new Worker(
                 message: "Emergency: Heart rate is 0",
                 lat,
                 lng,
+                heartRate,
+                spo2
               });
 
-              console.log("🏥 Alert saved for hospital:", hospital.id);
+              console.log("🏥 Alert saved for hospital:", hospital.name);
+
+              // 🔥 EMAIL TO HOSPITAL
+              await sendAlertEmail({
+                to: hospital.email,
+                type: "CRITICAL_HOSPITAL",
+                patientName,
+                hospitalName: hospital.name,
+                hospitalLat: hospital.latitude,
+                hospitalLng: hospital.longitude,
+                heartRate,
+                spo2,
+                lat,
+                lng,
+              });
+
+              console.log("📧 Hospital notified:", hospital.email);
             }
           }
 
-          // ⚠️ HIGH HR FLOW
           if (isHighHR) {
             alertType = "HIGH_HEART_RATE";
           }
 
-          // ⏱️ Cooldown
           await connection.set(alertKey, now);
 
-          // 📧 Emails
+          // 📧 FAMILY + USER EMAILS
           const emails = await getEmailsForUser(userId);
 
-          await Promise.all([
-            ...emails.map((email) =>
+          await Promise.all(
+            emails.map((email) =>
               sendAlertEmail({
                 to: email,
                 userId,
@@ -105,19 +131,8 @@ const worker = new Worker(
                 lng,
                 type: alertType,
               })
-            ),
-            alertType === "CRITICAL" && hospital
-              ? sendAlertEmail({
-                  to: hospital.email,
-                  userId,
-                  heartRate,
-                  spo2,
-                  lat,
-                  lng,
-                  type: "CRITICAL_HOSPITAL",
-                })
-              : null,
-          ]);
+            )
+          );
 
           // 💾 Save general alert
           await saveAlert({

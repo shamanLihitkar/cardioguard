@@ -1,9 +1,47 @@
 // controllers/hospitalController.js
 
-import {pool} from "../config/db.js";
+import { pool } from "../config/db.js";
 import bcrypt from "bcrypt";
-import {getEmailsForUser}from "../services/userService.js"
-import {sendAlertEmail}from "../services/notificationService.js"
+
+import { getEmailsForUser } from "../services/userService.js";
+import { sendAlertEmail } from "../services/notificationService.js";
+import { findNearestHospital } from "../services/hospitalService.js";
+import { saveHospitalAlert } from "../services/hospitalAlertService.js";
+
+import IORedis from "ioredis";
+
+const redis = new IORedis({
+  host: "127.0.0.1",
+  port: 6379,
+});
+
+// 🔥 HELPER: Get latest vitals safely
+const getLatestVitals = async (userId) => {
+  try {
+    const key = `user:${userId}:vitals`;
+    const readings = await redis.lrange(key, 0, 0);
+
+    console.log("🧠 Redis readings:", readings);
+
+    if (!readings.length) {
+      return { heartRate: null, spo2: null };
+    }
+
+    const latest = JSON.parse(readings[0]);
+
+    return {
+      heartRate: latest.heartRate,
+      spo2: latest.spo2,
+    };
+  } catch (err) {
+    console.error("❌ Error fetching vitals:", err);
+    return { heartRate: null, spo2: null };
+  }
+};
+
+// =============================
+// 🔐 LOGIN
+// =============================
 export const loginHospital = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -13,14 +51,15 @@ export const loginHospital = async (req, res) => {
       [email]
     );
 
-    if (rows.length === 0) {
+    if (!rows.length) {
       return res.status(404).json({ message: "Hospital not found" });
     }
 
     const hospital = rows[0];
 
-   
-    if (!bcrypt.compare(hospital.password,password)) {
+    const isMatch = await bcrypt.compare(password, hospital.password);
+
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
@@ -35,18 +74,20 @@ export const loginHospital = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// =============================
+// 🏥 REGISTER
+// =============================
 export const registerHospital = async (req, res) => {
   try {
     const { name, email, password, latitude, longitude } = req.body;
 
-    // 🔍 1. Validate input
     if (!name || !email || !password || !latitude || !longitude) {
       return res.status(400).json({
-        message: "All fields (name, email, password, latitude, longitude) are required",
+        message: "All fields are required",
       });
     }
 
-    // 🔍 2. Check if hospital already exists
     const [existing] = await pool.query(
       "SELECT id FROM hospitals WHERE email = ?",
       [email]
@@ -54,12 +95,12 @@ export const registerHospital = async (req, res) => {
 
     if (existing.length > 0) {
       return res.status(409).json({
-        message: "Hospital already registered with this email",
+        message: "Hospital already exists",
       });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 💾 3. Insert hospital
     const [result] = await pool.query(
       `INSERT INTO hospitals 
        (name, email, password, latitude, longitude)
@@ -67,20 +108,20 @@ export const registerHospital = async (req, res) => {
       [name, email, hashedPassword, latitude, longitude]
     );
 
-    // ✅ 4. Success response
     return res.status(201).json({
-      message: "Hospital registered successfully",
+      message: "Hospital registered",
       hospitalId: result.insertId,
     });
 
   } catch (err) {
-    console.error("❌ Error in registerHospital:", err);
-
-    return res.status(500).json({
-      message: "Internal server error",
-    });
+    console.error("❌ registerHospital error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+// =============================
+// 📋 GET ALERTS
+// =============================
 export const getHospitalAlerts = async (req, res) => {
   try {
     const { hospitalId } = req.params;
@@ -96,8 +137,8 @@ export const getHospitalAlerts = async (req, res) => {
         patient_name,
         latitude,
         longitude,
-        email
-
+        email,
+        user_id
       FROM hospital_alerts
       WHERE hospital_id = ?
       ORDER BY created_at DESC
@@ -113,7 +154,12 @@ export const getHospitalAlerts = async (req, res) => {
   }
 };
 
+// =============================
+// 🔄 UPDATE STATUS + REASSIGN
+// =============================
 export const updateHospitalAlertStatus = async (req, res) => {
+  const connection = await pool.getConnection();
+
   try {
     const { alertId } = req.params;
     const { status } = req.body;
@@ -122,33 +168,32 @@ export const updateHospitalAlertStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    // 🔍 Get alert + hospital + user details
-    const [rows] = await pool.query(
+    await connection.beginTransaction();
+
+    const [rows] = await connection.query(
       `
       SELECT 
-        ha.id,
-        ha.user_id,
-        ha.patient_name,
-        ha.latitude,
-        ha.longitude,
+        ha.*,
         h.name AS hospital_name,
         h.latitude AS hospital_lat,
-        h.longitude AS hospital_lng
+        h.longitude AS hospital_lng,
+        h.email AS hospital_email
       FROM hospital_alerts ha
       JOIN hospitals h ON ha.hospital_id = h.id
       WHERE ha.id = ?
+      FOR UPDATE
       `,
       [alertId]
     );
 
     if (!rows.length) {
+      await connection.rollback();
       return res.status(404).json({ message: "Alert not found" });
     }
 
     const alert = rows[0];
 
-    // 🔥 Update ONLY if still pending
-    const [result] = await pool.query(
+    const [result] = await connection.query(
       `
       UPDATE hospital_alerts
       SET status = ?
@@ -158,12 +203,13 @@ export const updateHospitalAlertStatus = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(400).json({
-        message: "Already processed",
-      });
+      await connection.rollback();
+      return res.status(400).json({ message: "Already processed" });
     }
 
-    // 📧 SEND EMAIL ONLY IF ACCEPTED
+    // =============================
+    // ✅ ACCEPT FLOW
+    // =============================
     if (status === "ACCEPTED") {
       const emails = await getEmailsForUser(alert.user_id);
 
@@ -183,10 +229,73 @@ export const updateHospitalAlertStatus = async (req, res) => {
       console.log("📧 Acceptance emails sent");
     }
 
-    res.json({ message: "Status updated" });
+    // =============================
+    // ❌ REJECT FLOW → REASSIGN
+    // =============================
+    if (status === "REJECTED") {
+      console.log("🔁 Reassigning alert...");
+
+      const nextHospital = await findNearestHospital(
+        alert.latitude,
+        alert.longitude,
+        alert.hospital_id
+      );
+
+      console.log("🏥 Next hospital:", nextHospital);
+
+      if (nextHospital) {
+        // 🔥 Get vitals
+        let { heartRate, spo2 } = await getLatestVitals(alert.user_id);
+
+        // 🔥 Fallback (IMPORTANT)
+        if (heartRate == null || spo2 == null) {
+          console.log("⚠️ Redis empty → using fallback values");
+          heartRate = heartRate ?? 0;
+          spo2 = spo2 ?? 0;
+        }
+
+        // 💾 Save alert
+        await saveHospitalAlert({
+          hospitalId: nextHospital.id,
+          userId: alert.user_id,
+          type: alert.alert_type,
+          message: alert.message,
+          lat: alert.latitude,
+          lng: alert.longitude,
+        });
+
+        console.log("🏥 Reassigned to:", nextHospital.name);
+
+        // 📧 Send email
+        await sendAlertEmail({
+          to: nextHospital.email,
+          type: "CRITICAL_HOSPITAL",
+          patientName: alert.patient_name,
+          hospitalName: nextHospital.name,
+          hospitalLat: nextHospital.latitude,
+          hospitalLng: nextHospital.longitude,
+          heartRate,
+          spo2,
+          lat: alert.latitude,
+          lng: alert.longitude,
+        });
+
+        console.log("📧 Email sent to reassigned hospital:", nextHospital.email);
+
+      } else {
+        console.log("❌ No hospital available for reassignment");
+      }
+    }
+
+    await connection.commit();
+
+    res.json({ message: "Status updated successfully" });
 
   } catch (err) {
+    await connection.rollback();
     console.error("❌ Error updating status:", err);
     res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
   }
 };

@@ -13,6 +13,7 @@ import authRoutes from "./routes/authRoutes.js";
 import alertRoutes from "./routes/alertRoutes.js";
 import hospitalRoutes from "./routes/hospitalRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import otpRoutes from "./routes/otpRoutes.js"
 dotenv.config();
 
 const app = express();
@@ -25,7 +26,7 @@ app.use("/auth", authRoutes);
 app.use("/alerts", alertRoutes);
 app.use("/api/hospitals", hospitalRoutes);
 app.use("/admin", adminRoutes);
-
+app.use('/api',otpRoutes);
 const server = http.createServer(app);
 
 const io = new Server(server, {

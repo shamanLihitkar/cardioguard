@@ -7,7 +7,10 @@ export default function AdminAuth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  const handleForgotPassword=(e)=>{
+      e.preventDefault();
+      navigate("/forgot-password");
+  }
   const handleLogin = async () => {
     try {
       const res = await axios.post(
@@ -53,6 +56,9 @@ export default function AdminAuth() {
 
           <button className="login-btn" onClick={handleLogin}>
             Sign In
+          </button>
+          <button className="login-btn" onClick={handleForgotPassword}>
+            Forgot password
           </button>
         </div>
         

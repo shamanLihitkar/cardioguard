@@ -9,7 +9,7 @@ export default function HospitalAuth() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -18,20 +18,29 @@ export default function HospitalAuth() {
     longitude: "",
   });
 
+  // Handle forgot password navigation separately
+  const handleForgotPassword = (e) => {
+    e.preventDefault(); // Stop form submission
+    navigate("/forgot-password");
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const hospitalId = localStorage.getItem("hospitalId");
 
     if (token) {
       navigate("/home");
-      return;
-    }
-    if (hospitalId) {
+    } else if (hospitalId) {
       navigate("/hospital/dashboard");
     }
   }, [navigate]);
 
   const getLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setForm((prev) => ({
@@ -47,7 +56,9 @@ export default function HospitalAuth() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
+      // Validation for registration
       if (!isLogin) {
         if (!form.name || !form.email || !form.password || !form.latitude || !form.longitude) {
           alert("Please fill all fields and provide location");
@@ -60,16 +71,25 @@ export default function HospitalAuth() {
         ? "http://localhost:5000/api/hospitals/login"
         : "http://localhost:5000/api/hospitals/register";
 
-      const payload = isLogin ? { email: form.email, password: form.password } : form;
+      const payload = isLogin 
+        ? { email: form.email, password: form.password } 
+        : form;
+      console.log("payload"+payload);
+      
       const res = await axios.post(url, payload);
 
+      // Clean up user session items if a hospital logs in
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
+      
+      // Store new credentials
       localStorage.setItem("hospitalId", res.data.hospitalId);
+      // If your backend returns a JWT, store it here:
+      // if(res.data.token) localStorage.setItem("token", res.data.token);
 
       navigate("/hospital/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Operation failed");
+      alert(err.response?.data?.message || "Operation failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -90,6 +110,7 @@ export default function HospitalAuth() {
               <label>Hospital Name</label>
               <input
                 type="text"
+                required
                 placeholder="City General Hospital"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -101,6 +122,7 @@ export default function HospitalAuth() {
             <label>Admin Email</label>
             <input
               type="email"
+              required
               placeholder="admin@hospital.org"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -112,6 +134,7 @@ export default function HospitalAuth() {
             <div className="password-wrapper">
               <input
                 type={showPassword ? "text" : "password"}
+                required
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -140,9 +163,19 @@ export default function HospitalAuth() {
             </div>
           )}
 
-          <button type="submit" className="btn-primary" style={{"color":"white"}} disabled={loading}>
+          <button type="submit" className="btn-primary" disabled={loading} style={{color:"white"}}>
             {loading ? "Verifying..." : isLogin ? "Sign In" : "Complete Registration"}
           </button>
+
+          {isLogin && (
+            <button
+              type="button" // Changed to type="button"
+              className="btn-primary" style={{color:"white","backgroundColor":"red"}}
+              onClick={handleForgotPassword}
+            >
+              Forgot password?
+            </button>
+          )}
         </form>
 
         <div className="auth-footer">
