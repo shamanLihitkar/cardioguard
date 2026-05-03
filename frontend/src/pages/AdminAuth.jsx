@@ -7,14 +7,14 @@ export default function AdminAuth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const baseUrl=import.meta.env.VITE_API_URL;
   const handleForgotPassword=(e)=>{
       e.preventDefault();
       navigate("/forgot-password");
   }
   const handleLogin = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:5000/admin/login",
+      const res = await axios.post(`${baseUrl}/admin/login`,
         { email, password }
       );
       

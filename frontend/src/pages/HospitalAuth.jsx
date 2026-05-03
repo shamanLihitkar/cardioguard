@@ -66,10 +66,10 @@ export default function HospitalAuth() {
           return;
         }
       }
-
+      const baseUrl=import.meta.env.VITE_API_URL;
       const url = isLogin
-        ? "http://localhost:5000/api/hospitals/login"
-        : "http://localhost:5000/api/hospitals/register";
+        ? `${baseUrl}/api/hospitals/login`
+        : `${baseUrl}/api/hospitals/register`;
 
       const payload = isLogin 
         ? { email: form.email, password: form.password } 

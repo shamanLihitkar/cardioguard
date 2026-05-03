@@ -7,7 +7,7 @@ const ForgotPassword = () => {
     const [otp, setOtp] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    
+    const baseUrl=import.meta.env.VITE_API_URL;
     // step: 1 (Email), 2 (OTP), 3 (New Password)
     const [step, setStep] = useState(1); 
     const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/get-otp', { email ,role});
+            await axios.post(`${baseUrl}/api/get-otp`, { email ,role});
             setStep(2);
         } catch (error) {
             alert(error.response?.data?.message || "Error sending OTP");
@@ -31,7 +31,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/verify-otp', { email, otp });
+            await axios.post(`${baseUrl}/api/verify-otp`, { email, otp });
             setStep(3); // Move to password reset fields
         } catch (error) {
             alert(error.response?.data?.message || "Invalid OTP");
@@ -49,7 +49,7 @@ const ForgotPassword = () => {
         }
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/reset-password', {
+            const res = await axios.post(`${baseUrl}/api/reset-password`, {
                 email,
                 password,
                 role

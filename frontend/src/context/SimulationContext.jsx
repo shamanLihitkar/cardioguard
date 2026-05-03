@@ -35,10 +35,10 @@ export const SimulationProvider = ({ children }) => {
   const socketRef = useRef(null);
   const sendCounterRef = useRef(0);
   const locationWatchId = useRef(null);
-
+  const baseUrl=import.meta.env.VITE_API_URL;
   // 🔌 SOCKET
   useEffect(() => {
-    socketRef.current = io("http://localhost:5000");
+    socketRef.current = io(baseUrl);
 
     socketRef.current.on("connect", () => {
       console.log("✅ Connected to backend");

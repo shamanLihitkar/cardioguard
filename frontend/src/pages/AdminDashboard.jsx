@@ -10,12 +10,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchData();
   }, []);
-
+  const baseUrl=import.meta.env.VITE_API_URL;
   const fetchData = async () => {
     setLoading(true);
     try {
-      const usersRes = await axios.get("http://localhost:5000/admin/users");
-      const hospitalsRes = await axios.get("http://localhost:5000/admin/hospitals");
+      const usersRes = await axios.get(`${baseUrl}/admin/users`);
+      const hospitalsRes = await axios.get(`${baseUrl}/admin/hospitals`);
       setUsers(usersRes.data.data || []);
       setHospitals(hospitalsRes.data.data || []);
     } catch (err) {
@@ -27,14 +27,14 @@ export default function AdminDashboard() {
 
   const deleteUser = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
-      await axios.delete(`http://localhost:5000/admin/user/${id}`);
+      await axios.delete(`${baseUrl}/admin/user/${id}`);
       fetchData();
     }
   };
 
   const deleteHospital = async (id) => {
     if (window.confirm("Are you sure you want to delete this hospital?")) {
-      await axios.delete(`http://localhost:5000/admin/hospital/${id}`);
+      await axios.delete(`${baseUrl}/admin/hospital/${id}`);
       fetchData();
     }
   };

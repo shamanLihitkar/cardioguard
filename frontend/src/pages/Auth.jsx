@@ -15,7 +15,7 @@ export default function Auth() {
 
   // 👨‍👩‍👧‍👦 Family Members State
   const [familyMembers, setFamilyMembers] = useState([]);
-
+  const baseUrl=meta.process.env.VITE_API_URL;
   useEffect(() => {
     const token = localStorage.getItem("token");
     const hospitalId = localStorage.getItem("hospitalId");
@@ -53,8 +53,8 @@ export default function Auth() {
     setLoading(true);
     try {
       const url = isLogin
-        ? "http://localhost:5000/auth/login"
-        : "http://localhost:5000/auth/register";
+        ? `${baseUrl}/auth/login`
+        : `${baseUrl}/auth/register`;
 
       // Include familyMembers in payload if registering
       const payload = isLogin

@@ -7,19 +7,7 @@ export default function HospitalDashboard() {
   const [activeTab, setActiveTab] = useState("PENDING");
 
   const hospitalId = localStorage.getItem("hospitalId");
-  const playNotification = () => {
-    const audio = new Audio()
-      audio.src="https://www.myinstants.com/media/sounds/gey-echo.mp3"
-    audio.load()
-    audio.play().then(()=>{
-      console.log("Playback started");
-      
-    }).catch((error)=>{
-      console.log("Playback error",error.message);
-      
-    })
-    
-  };
+  const baseUrl=import.meta.env.VITE_API_URL;
   useEffect(() => {
     fetchAlerts();
 
@@ -35,7 +23,7 @@ export default function HospitalDashboard() {
   const fetchAlerts = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/hospitals/alerts/${hospitalId}`
+        `${baseUrl}/api/hospitals/alerts/${hospitalId}`
       );
       console.log("Polled");
       setAlerts(res.data);
@@ -48,7 +36,7 @@ export default function HospitalDashboard() {
   const updateStatus = async (id, status) => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/hospitals/alerts/${id}/status`,
+        `${baseUrl}/api/hospitals/alerts/${id}/status`,
         { status }
       );
 
@@ -92,7 +80,7 @@ export default function HospitalDashboard() {
         >
           Rejected
         </button>
-        <button onClick={playNotification}>click</button>
+       
       </div>
 
       {/* 📋 Alerts */}
