@@ -57,6 +57,7 @@ export const generateOtp = async (req, res) => {
   tls: {
     rejectUnauthorized: false,
   },
+  family:4
 });
     const mailOptions = {
       from: process.env.EMAIL_USER,
