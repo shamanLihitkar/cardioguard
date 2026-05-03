@@ -1,8 +1,8 @@
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { pool } from "../config/db.js";
+import { Resend } from "resend";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,19 +11,7 @@ dotenv.config({
   path: path.resolve(__dirname, "../../.env"),
 });
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // IMPORTANT
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  family:4
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendAlertEmail = async ({
   to,
@@ -33,7 +21,6 @@ export const sendAlertEmail = async ({
   lat,
   lng,
   type = "CRITICAL",
-
   patientName,
   hospitalName,
   hospitalLat,
@@ -53,7 +40,6 @@ export const sendAlertEmail = async ({
       );
 
       const user = users[0];
-
       const locationLink = `https://maps.google.com/?q=${lat},${lng}`;
 
       subject =
@@ -74,7 +60,7 @@ export const sendAlertEmail = async ({
     }
 
     // ================================
-    // 🏥 HOSPITAL ALERT (FIXED)
+    // 🏥 HOSPITAL ALERT
     // ================================
     if (type === "CRITICAL_HOSPITAL") {
       const locationLink = `https://maps.google.com/?q=${lat},${lng}`;
@@ -122,8 +108,9 @@ export const sendAlertEmail = async ({
       `;
     }
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    // ✅ Send using Resend
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
       to,
       subject,
       html,
@@ -132,7 +119,7 @@ export const sendAlertEmail = async ({
     console.log(`📧 Email sent → ${to} (${type})`);
 
   } catch (err) {
-    console.error("❌ Email error:", err);
-    throw err;
+    console.error("❌ Email error:", err.message);
+    // ❗ DO NOT throw → prevents worker crash
   }
 };
