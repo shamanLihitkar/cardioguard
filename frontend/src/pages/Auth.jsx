@@ -15,7 +15,7 @@ export default function Auth() {
 
   // 👨‍👩‍👧‍👦 Family Members State
   const [familyMembers, setFamilyMembers] = useState([]);
-  const baseUrl=meta.process.env.VITE_API_URL;
+  const baseUrl=import.meta.env.VITE_API_URL;
   useEffect(() => {
     const token = localStorage.getItem("token");
     const hospitalId = localStorage.getItem("hospitalId");
