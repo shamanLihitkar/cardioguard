@@ -11,7 +11,6 @@ import { saveHospitalAlert } from "../services/hospitalAlertService.js";
 import { pool } from "../config/db.js";
 
 dotenv.config();
-console.log(process.env.REDIS_URL);
 const connection = new IORedis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null,
   retryStrategy: (times) => Math.min(times * 50, 2000),
