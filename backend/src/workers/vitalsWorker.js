@@ -159,7 +159,7 @@ const worker = new Worker(
   },
   {
     connection,
-    concurrency: 5, // 🔥 THIS IS THE KEY CHANGE
+    concurrency: 10, // 🔥 THIS IS THE KEY CHANGE
   }
 );
 
