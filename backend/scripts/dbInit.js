@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const initDB = async () => {
-  const connection=await createConnection({
+  const connection=await mysql.createConnection({
     uri: process.env.MYSQL_URL,
     ssl: {
       rejectUnauthorized: false,
