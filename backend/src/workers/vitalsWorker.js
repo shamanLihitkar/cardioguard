@@ -118,7 +118,9 @@ const worker = new Worker(
           // 📧 FAMILY + USER EMAILS
           const emails = await getEmailsForUser(userId);
 
-          await Promise.all(
+          if(!emails || emails.length === 0) {
+            console.log("⚠️ No emails found for user:", userId);  }else{
+              await Promise.all(
             emails.map((email) =>
               sendAlertEmail({
                 to: email,
@@ -131,6 +133,7 @@ const worker = new Worker(
               })
             )
           );
+            }
 
           // 💾 Save general alert
           await saveAlert({

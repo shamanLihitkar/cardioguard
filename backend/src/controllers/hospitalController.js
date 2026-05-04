@@ -215,6 +215,9 @@ export const updateHospitalAlertStatus = async (req, res) => {
     // =============================
     if (status === "ACCEPTED") {
       const emails = await getEmailsForUser(alert.user_id);
+      if (!emails || emails.length === 0) {
+  console.log("⚠️ No emails found for user:", alert.user_id);
+      }else{
 
       await Promise.all(
         emails.map((email) =>
@@ -228,8 +231,8 @@ export const updateHospitalAlertStatus = async (req, res) => {
           })
         )
       );
-
       console.log("📧 Acceptance emails sent");
+    }
     }
 
     // =============================

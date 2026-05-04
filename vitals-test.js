@@ -12,8 +12,8 @@ export const options = {
 
 export default function () {
   const payload = JSON.stringify({
-    userId: Math.floor(Math.random() * 5) + 1,
-    heartRate: Math.random() > 0.9 ? 0 : 70 + Math.random() * 50,
+    userId: 1,
+    heartRate: 0,
     spo2: 97 + Math.random(),
     lat: 18.7,
     lng: 73.4,
