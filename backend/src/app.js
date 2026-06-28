@@ -25,8 +25,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://cardio-guard-two.vercel.app",
-      "https://cardio-guard-l22mo4yod-ibrahimkapadwanchwalas-projects.vercel.app",
+      "cardioguard-c72t55hct-shamanlihitkar-8432s-projects.vercel.app",
+      "cardioguard-delta.vercel.app",
     ],
     credentials: true,
   })
